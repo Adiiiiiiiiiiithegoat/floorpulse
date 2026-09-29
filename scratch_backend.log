@@ -1,9 +1,0 @@
-INFO:     Started server process [9060]
-INFO:     Waiting for application startup.
-{"ts": "2026-09-29T13:32:59+0400", "level": "INFO", "logger": "apscheduler.scheduler", "msg": "Adding job tentatively -- it will be properly scheduled when the scheduler starts"}
-{"ts": "2026-09-29T13:32:59+0400", "level": "INFO", "logger": "apscheduler.scheduler", "msg": "Added job \"run_job\" to job store \"default\""}
-{"ts": "2026-09-29T13:32:59+0400", "level": "INFO", "logger": "apscheduler.scheduler", "msg": "Scheduler started"}
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-{"ts": "2026-09-29T13:35:50+0400", "level": "INFO", "logger": "floorpulse.request", "msg": "request", "request_id": "d719609590b841b39f9c38d313469d75", "method": "GET", "path": "/healthz", "status": 200, "ms": 9.4}
-{"ts": "2026-09-29T13:35:50+0400", "level": "INFO", "logger": "floorpulse.request", "msg": "request", "request_id": "2db96bb6a2a64d4b996f5ddd313bc745", "method": "GET", "path": "/healthz", "status": 200, "ms": 1.4}
