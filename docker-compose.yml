@@ -1,0 +1,46 @@
+# Full stack: Postgres, API, and the web app served by Caddy (automatic HTTPS when FP_DOMAIN is a real domain).
+# Usage: POSTGRES_PASSWORD=... FP_SECRET_KEY=... FP_DOMAIN=floor.example.com docker compose up -d --build
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: floorpulse
+      POSTGRES_USER: floorpulse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U floorpulse"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build: ./backend
+    environment:
+      FP_ENV: prod
+      FP_DATABASE_URL: postgresql+psycopg://floorpulse:${POSTGRES_PASSWORD}@db:5432/floorpulse
+      FP_SECRET_KEY: ${FP_SECRET_KEY:?set FP_SECRET_KEY}
+      FP_COOKIE_SECURE: "true"
+      FP_CORS_ORIGINS: '["https://${FP_DOMAIN:-localhost}"]'
+      FP_PUBLIC_BASE_URL: https://${FP_DOMAIN:-localhost}
+    volumes: [uploads:/app/uploads]
+    depends_on:
+      db: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz')"]
+      interval: 10s
+    restart: unless-stopped
+
+  web:
+    build: ./frontend
+    environment:
+      FP_DOMAIN: ${FP_DOMAIN:-localhost}
+    ports: ["80:80", "443:443"]
+    volumes: [caddy_data:/data]
+    depends_on: [api]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  uploads:
+  caddy_data:

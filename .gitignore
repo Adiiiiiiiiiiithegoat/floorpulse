@@ -1,0 +1,21 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.db
+*.db-shm
+*.db-wal
+backend/uploads/
+# node
+node_modules/
+dist/
+dev-dist/
+frontend/e2e/__screens__/
+frontend/playwright-report/
+frontend/test-results/
+# env
+.env
+*.local

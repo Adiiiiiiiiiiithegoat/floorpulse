@@ -1,0 +1,63 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: backend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run ruff check . && uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run pytest
+      - name: Dependency audit
+        run: uv export --frozen --no-dev --no-hashes -o /tmp/req.txt && uvx pip-audit --strict -r /tmp/req.txt
+
+  postgres-migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_PASSWORD: pw, POSTGRES_DB: fp }
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 10
+    defaults: { run: { working-directory: backend } }
+    env:
+      FP_DATABASE_URL: postgresql+psycopg://postgres:pw@localhost:5432/fp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run alembic upgrade head && uv run alembic check
+      - run: uv run alembic downgrade base && uv run alembic upgrade head
+      - run: uv run python -m app.seed
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - uses: astral-sh/setup-uv@v6
+      - run: npm ci
+      - name: API types are up to date
+        run: (cd ../backend && uv sync --frozen) && npm run gen:api && git diff --exit-code src/lib/api-types.ts
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright
+          path: |
+            frontend/playwright-report
+            frontend/e2e/__screens__
