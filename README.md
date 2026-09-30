@@ -42,7 +42,20 @@ Organization: **Demo Auto Components Pvt Ltd**, with two plants: **Pune Plant** 
 | Priya Sharma | `quality@demo.floorpulse.app` | Quality inspector | Pune, Chennai | `1234` |
 | Farhan Shaikh | `stores@demo.floorpulse.app` | Store keeper | Pune, Chennai | `1234` |
 
-### Operator app (PIN only): http://localhost:5173/floor
+### Operator app: http://localhost:5173/floor
+
+The operator app needs **two steps**. The first time you open `/floor` you'll see **"Set up this device"**. That screen wants a **supervisor's email and password**, not an operator PIN.
+
+1. **Register the device (once per browser).** On "Set up this device", enter:
+   - Email: `supervisor.pune@demo.floorpulse.app`
+   - Password: `FloorPulse!2026`
+
+   Click **Sign in**, pick **Pune Plant** (the line is optional), then click **Register device**.
+2. **Operator sign-in.** On "Who are you?", tap **Ganesh Jadhav** or **Lakshmi Rao** and enter PIN **`1234`**.
+
+For the Chennai operators (Mohan Das, Kavita Joshi), register the device with `supervisor.chennai@demo.floorpulse.app` instead.
+
+Operators who can sign in:
 
 | Name | Employee code | Plant | PIN |
 |---|---|---|---|
@@ -53,16 +66,13 @@ Organization: **Demo Auto Components Pvt Ltd**, with two plants: **Pune Plant** 
 
 Staff with a PIN (supervisors, technicians, inspector, store keeper) can also sign in on a device at their plant.
 
-### Shop-floor devices
+### Shortcut: skip device setup
 
-PIN sign-in only works on a registered device. Pick one of these:
+Instead of step 1 above, you can use a seeded demo device. Open the browser console (F12) and run one of these, then reload `/floor`:
+- Pune: `localStorage.setItem('fp_device_token', 'demo-device-pun')`
+- Chennai: `localStorage.setItem('fp_device_token', 'demo-device-che')`
 
-1. **Use a seeded demo device.** Open the browser console (F12) on the app and run one of these, then open `/floor`:
-   - Pune: `localStorage.setItem('fp_device_token', 'demo-device-pun')`
-   - Chennai: `localStorage.setItem('fp_device_token', 'demo-device-che')`
-2. **Register a real device.** Open `/floor` on the phone, sign in as a supervisor (for example `supervisor.pune@demo.floorpulse.app` / `FloorPulse!2026`), and choose the plant and line.
-
-To switch a browser back to an unregistered device, run `localStorage.removeItem('fp_device_token')`.
+To make a browser unregistered again, run `localStorage.removeItem('fp_device_token')`.
 
 ### Useful URLs (local)
 
